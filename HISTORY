@@ -1,0 +1,34 @@
+VDR Plugin 'gstout' Revision History
+------------------------------------
+
+2026-02-04: Version 0.1.0
+
+- Initial release
+- GStreamer 1.0 based audio/video output
+- Audio pipeline with appsrc → decodebin → audioconvert → audioresample → sink
+- Video pipeline with appsrc → decodebin → deinterlace → videoconvert → videoscale → sink
+- Support for multiple audio sinks:
+  * autoaudiosink (automatic detection)
+  * alsasink (ALSA)
+  * pulsesink (PulseAudio)
+  * osssink (OSS)
+  * jackaudiosink (JACK)
+- Support for multiple video sinks:
+  * autovideosink (automatic detection)
+  * xvimagesink (X11 XVideo)
+  * ximagesink (X11 standard)
+  * vaapisink (VAAPI hardware)
+  * glimagesink (OpenGL)
+  * fbdevsink (framebuffer)
+- Hardware acceleration support via VAAPI
+- Configurable deinterlacing
+- Adjustable audio and video buffers
+- Thread-safe implementation with mutex protection
+- Ring buffers for smooth data flow
+- Setup menu for configuration
+- SVDRP commands:
+  * STAT - Show pipeline statistics
+  * RSET - Reset pipeline
+- Automatic fallback to software decoding if hardware fails
+- Comprehensive error handling and logging
+- German translation included

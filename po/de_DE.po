@@ -1,0 +1,36 @@
+# Translation file for gstout plugin
+# German translations
+
+msgid ""
+msgstr ""
+"Project-Id-Version: VDR gstout 0.1.0\n"
+"Report-Msgid-Bugs-To: <see README>\n"
+"POT-Creation-Date: 2026-02-04 12:00+0000\n"
+"PO-Revision-Date: 2026-02-04 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "GStreamer-based Audio/Video Output"
+msgstr "GStreamer-basierte Audio/Video-Ausgabe"
+
+msgid "Audio Sink"
+msgstr "Audio-Ausgabe"
+
+msgid "Video Sink"
+msgstr "Video-Ausgabe"
+
+msgid "Hardware Decoding"
+msgstr "Hardware-Dekodierung"
+
+msgid "Deinterlace"
+msgstr "Deinterlacing"
+
+msgid "Audio Buffer (KB)"
+msgstr "Audio-Puffer (KB)"
+
+msgid "Video Buffer (KB)"
+msgstr "Video-Puffer (KB)"

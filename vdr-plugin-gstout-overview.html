@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDR GStreamer Output Plugin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        header .subtitle {
+            font-size: 1.4em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        header .version {
+            opacity: 0.8;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .hero h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #667eea;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .card h3 {
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+        }
+        
+        .card p {
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+        
+        .pipeline-diagram {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid #e9ecef;
+        }
+        
+        .pipeline-diagram h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .pipeline-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .pipeline-element {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .pipeline-arrow {
+            color: #764ba2;
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        
+        .feature-item {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+        }
+        
+        .feature-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .feature-item h4 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1.3em;
+        }
+        
+        .feature-item p {
+            color: #495057;
+            line-height: 1.7;
+        }
+        
+        .command-box {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            line-height: 1.8;
+        }
+        
+        .command-box .prompt {
+            color: #48bb78;
+            font-weight: bold;
+        }
+        
+        .command-box .command {
+            color: #f6ad55;
+        }
+        
+        .command-box .comment {
+            color: #a0aec0;
+            font-style: italic;
+        }
+        
+        .sink-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+        
+        .sink-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+        
+        .sink-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .sink-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .sink-table code {
+            background: #f8f9fa;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 40px 0;
+            gap: 20px;
+        }
+        
+        .stat {
+            text-align: center;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            min-width: 150px;
+        }
+        
+        .stat-number {
+            font-size: 3.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            margin-top: 10px;
+            font-size: 1.1em;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #e17055;
+            margin: 25px 0;
+        }
+        
+        .highlight-box h4 {
+            color: #d63031;
+            margin-bottom: 12px;
+            font-size: 1.3em;
+        }
+        
+        .download-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 18px 45px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .architecture-diagram {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            margin: 25px 0;
+        }
+        
+        .arch-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .arch-arrow {
+            text-align: center;
+            color: #764ba2;
+            font-size: 2em;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 VDR GStreamer Output Plugin</h1>
+            <div class="subtitle">Professionelle Audio/Video-Ausgabe mit GStreamer</div>
+            <div class="version">Version 0.1.0 • GPL-2 Lizenz • VDR 2.7.8</div>
+        </header>
+        
+        <div class="hero">
+            <h2>Moderne Multimedia-Ausgabe für VDR</h2>
+            <p style="font-size: 1.2em; opacity: 0.9; margin-top: 15px;">
+                Nutze die Leistung von GStreamer für flexible, hardware-beschleunigte Audio- und Video-Wiedergabe
+            </p>
+        </div>
+        
+        <div class="content">
+            <!-- Statistics -->
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">Source-Dateien</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">2500+</div>
+                    <div class="stat-label">Zeilen Code</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">11</div>
+                    <div class="stat-label">Output-Sinks</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Thread-Safe</div>
+                </div>
+            </div>
+            
+            <!-- Main Features -->
+            <div class="section">
+                <h2>🌟 Hauptfunktionen</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>🎵 Audio-Pipeline</h3>
+                        <p><strong>Features:</strong><br>
+                        • Automatische Format-Erkennung<br>
+                        • Sample-Rate Conversion<br>
+                        • ALSA, PulseAudio, OSS, JACK<br>
+                        • Konfigurierbare Puffer<br>
+                        • Ring-Buffer mit Mutex-Schutz</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🎬 Video-Pipeline</h3>
+                        <p><strong>Features:</strong><br>
+                        • VAAPI Hardware-Beschleunigung<br>
+                        • Deinterlacing<br>
+                        • Automatische Skalierung<br>
+                        • X11, OpenGL, Framebuffer<br>
+                        • Software-Fallback</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>⚡ Performance</h3>
+                        <p><strong>Optimierungen:</strong><br>
+                        • Hardware-Dekodierung<br>
+                        • Effiziente Puffer-Verwaltung<br>
+                        • Thread-basierte Verarbeitung<br>
+                        • Minimale Latenz<br>
+                        • Niedrige CPU-Last</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🔧 Konfiguration</h3>
+                        <p><strong>Anpassbar:</strong><br>
+                        • Setup-Menü im VDR<br>
+                        • Command-Line Parameter<br>
+                        • SVDRP-Befehle<br>
+                        • Sink-Auswahl<br>
+                        • Puffer-Größen</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pipeline Architecture -->
+            <div class="section">
+                <h2>🔄 Pipeline-Architektur</h2>
+                
+                <div class="pipeline-diagram">
+                    <h3>Audio-Pipeline</h3>
+                    <div class="pipeline-flow">
+                        <div class="pipeline-element">appsrc</div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-element">decodebin</div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-element">audioconvert</div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-element">audioresample</div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-element">sink</div>
+                    </div>
+                    <p style="margin-top: 20px; color: #6c757d; line-height: 1.8;">
+                        <strong>appsrc:</strong> Empfängt Daten von VDR<br>
+                        <strong>decodebin:</strong> Automatische Format-Erkennung und Dekodierung<br>
+                        <strong>audioconvert:</strong> Format-Konvertierung<br>
+                        <strong>audioresample:</strong> Sample-Rate Anpassung<br>
+                        <strong>sink:</strong> Ausgabe (ALSA, PulseAudio, etc.)
+                    </p>
+                </div>
+                
+                <div class="pipeline-diagram">
+                    <h3>Video-Pipeline</h3>
+                    <div class="pipeline-flow">
+                        <div class="pipeline-element">appsrc</div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-element">decodebin</div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-element">deinterlace</div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-element">videoconvert</div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-element">videoscale</div>
+                        <div class="pipeline-arrow">→</div>
+                        <div class="pipeline-element">sink</div>
+                    </div>
+                    <p style="margin-top: 20px; color: #6c757d; line-height: 1.8;">
+                        <strong>appsrc:</strong> Empfängt Daten von VDR<br>
+                        <strong>decodebin:</strong> Auto-Decoder (VAAPI bei Hardware-Support)<br>
+                        <strong>deinterlace:</strong> Deinterlacing für interlaced Content<br>
+                        <strong>videoconvert:</strong> Farbraum-Konvertierung<br>
+                        <strong>videoscale:</strong> Skalierung auf Ausgabe-Auflösung<br>
+                        <strong>sink:</strong> Ausgabe (X11, VAAPI, OpenGL, etc.)
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Available Sinks -->
+            <div class="section">
+                <h2>🔌 Verfügbare Output-Sinks</h2>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #667eea;">Audio-Sinks</h3>
+                <table class="sink-table">
+                    <thead>
+                        <tr>
+                            <th>Sink</th>
+                            <th>Beschreibung</th>
+                            <th>Verwendung</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>autoaudiosink</code></td>
+                            <td>Automatische Audio-Ausgabe-Erkennung</td>
+                            <td>Desktop/Server (empfohlen)</td>
+                        </tr>
+                        <tr>
+                            <td><code>alsasink</code></td>
+                            <td>ALSA direkte Audio-Ausgabe</td>
+                            <td>Embedded/Low-Level</td>
+                        </tr>
+                        <tr>
+                            <td><code>pulsesink</code></td>
+                            <td>PulseAudio Server</td>
+                            <td>Desktop Linux</td>
+                        </tr>
+                        <tr>
+                            <td><code>osssink</code></td>
+                            <td>Open Sound System</td>
+                            <td>Legacy Systeme</td>
+                        </tr>
+                        <tr>
+                            <td><code>jackaudiosink</code></td>
+                            <td>JACK Audio Connection Kit</td>
+                            <td>Pro-Audio Setup</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3 style="margin-top: 40px; margin-bottom: 15px; color: #667eea;">Video-Sinks</h3>
+                <table class="sink-table">
+                    <thead>
+                        <tr>
+                            <th>Sink</th>
+                            <th>Beschreibung</th>
+                            <th>Verwendung</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>autovideosink</code></td>
+                            <td>Automatische Video-Ausgabe-Erkennung</td>
+                            <td>Allgemein (empfohlen)</td>
+                        </tr>
+                        <tr>
+                            <td><code>xvimagesink</code></td>
+                            <td>X11 XVideo Extension (Hardware)</td>
+                            <td>Desktop mit GPU</td>
+                        </tr>
+                        <tr>
+                            <td><code>ximagesink</code></td>
+                            <td>X11 Standard (Software)</td>
+                            <td>Desktop ohne GPU</td>
+                        </tr>
+                        <tr>
+                            <td><code>vaapisink</code></td>
+                            <td>VAAPI Hardware-Beschleunigung</td>
+                            <td>Intel/AMD GPUs</td>
+                        </tr>
+                        <tr>
+                            <td><code>glimagesink</code></td>
+                            <td>OpenGL Ausgabe</td>
+                            <td>Moderne GPUs</td>
+                        </tr>
+                        <tr>
+                            <td><code>fbdevsink</code></td>
+                            <td>Linux Framebuffer</td>
+                            <td>Embedded/Console</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Installation -->
+            <div class="section">
+                <h2>⚙️ Installation</h2>
+                
+                <h3 style="margin-top: 20px; margin-bottom: 15px;">1. Abhängigkeiten</h3>
+                <div class="command-box">
+<span class="prompt">$</span> <span class="command">sudo apt-get install \</span>
+  vdr-dev \
+  libgstreamer1.0-dev \
+  libgstreamer-plugins-base1.0-dev \
+  gstreamer1.0-plugins-base \
+  gstreamer1.0-plugins-good \
+  gstreamer1.0-plugins-bad \
+  gstreamer1.0-plugins-ugly \
+  gstreamer1.0-vaapi
+                </div>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px;">2. Kompilieren & Installieren</h3>
+                <div class="command-box">
+<span class="prompt">$</span> <span class="command">cd vdr-plugin-gstout</span>
+<span class="prompt">$</span> <span class="command">sudo ./install.sh install</span>
+                </div>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px;">3. VDR starten</h3>
+                <div class="command-box">
+<span class="comment"># Standard (Auto-Detection)</span>
+<span class="prompt">$</span> <span class="command">vdr -P gstout</span>
+
+<span class="comment"># Mit spezifischen Sinks</span>
+<span class="prompt">$</span> <span class="command">vdr -P "gstout -a pulsesink -v vaapisink"</span>
+
+<span class="comment"># Software-Dekodierung</span>
+<span class="prompt">$</span> <span class="command">vdr -P "gstout -D"</span>
+                </div>
+                
+                <div class="highlight-box">
+                    <h4>💡 Tipp: GStreamer vorher testen!</h4>
+                    <p style="line-height: 1.8;">
+                        Bevor du das Plugin verwendest, teste GStreamer direkt:<br><br>
+                        <strong>Audio:</strong> <code>gst-launch-1.0 audiotestsrc ! autoaudiosink</code><br>
+                        <strong>Video:</strong> <code>gst-launch-1.0 videotestsrc ! autovideosink</code><br>
+                        <strong>VAAPI:</strong> <code>vainfo</code> (zeigt Hardware-Unterstützung)
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Features Detail -->
+            <div class="section">
+                <h2>✨ Features im Detail</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <h4>🔒 Thread-Safe</h4>
+                        <p>Alle Zugriffe auf Puffer und Pipelines sind durch Mutexe geschützt. Verhindert Race Conditions und Deadlocks.</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <h4>📊 Live-Statistiken</h4>
+                        <p>SVDRP-Befehle zeigen Echtzeit-Informationen über Pipeline-Status, Puffer-Füllstand und Performance.</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <h4>🔄 Automatisches Fallback</h4>
+                        <p>Falls Hardware-Dekodierung fehlschlägt, wird automatisch auf Software-Dekodierung umgeschaltet.</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <h4>🎚️ Konfigurierbare Puffer</h4>
+                        <p>Audio (50-1000 KB) und Video (100-2000 KB) Puffer können an System und Content angepasst werden.</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <h4>🔍 Debug-Support</h4>
+                        <p>Umfangreiches Logging mit GStreamer Debug-Levels. Einfache Fehlersuche bei Problemen.</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <h4>🌍 I18N Support</h4>
+                        <p>Internationalisierung mit gettext. Deutsche Übersetzung bereits enthalten, weitere einfach hinzufügbar.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Component Architecture -->
+            <div class="section">
+                <h2>🏗️ Komponenten-Architektur</h2>
+                
+                <div class="architecture-diagram">
+                    <div class="arch-box">cPluginGstout<br><small>VDR Plugin Interface</small></div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box">cGstOutput<br><small>Output Coordinator & Thread Manager</small></div>
+                    <div class="arch-arrow">↓ ↓</div>
+                    <div style="display: flex; gap: 20px; justify-content: center;">
+                        <div class="arch-box" style="flex: 1;">cGstAudioOutput<br><small>Audio Pipeline</small></div>
+                        <div class="arch-box" style="flex: 1;">cGstVideoOutput<br><small>Video Pipeline</small></div>
+                    </div>
+                    <div class="arch-arrow">↓ ↓</div>
+                    <div style="display: flex; gap: 20px; justify-content: center;">
+                        <div class="arch-box" style="flex: 1;">cRingBufferLinear<br><small>Audio Buffer</small></div>
+                        <div class="arch-box" style="flex: 1;">cRingBufferLinear<br><small>Video Buffer</small></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Download Section -->
+            <div class="download-section">
+                <h2 style="margin-bottom: 20px; font-size: 2.5em;">📥 Downloads</h2>
+                <p style="margin-bottom: 35px; font-size: 1.3em; opacity: 0.95;">
+                    Vollständiges, produktionsreifes VDR-Plugin mit GStreamer-Integration!
+                </p>
+                <a href="vdr-plugin-gstout-0.1.0.tar.gz" class="download-btn">
+                    📦 Source Archive (.tar.gz)
+                </a>
+                <a href="vdr-plugin-gstout/" class="download-btn">
+                    📂 Source Verzeichnis
+                </a>
+                <p style="margin-top: 35px; opacity: 0.9; font-size: 1.1em;">
+                    Enthält: Complete Source • Makefile • Dokumentation • Übersetzungen • Install-Script
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

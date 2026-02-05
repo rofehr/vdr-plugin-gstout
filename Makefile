@@ -118,7 +118,7 @@ $(SOFILE): $(OBJS)
 
 install-lib: $(SOFILE)
 	@echo IN $(DESTDIR)$(LIBDIR)/$<
-	$(Q)install -D $^ $(DESTDIR)$(LIBDIR)/$^
+	install -D $^ $(DESTDIR)$(LIBDIR)/$^.$(APIVERSION)
 
 install: install-lib install-i18n
 

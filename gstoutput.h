@@ -22,7 +22,6 @@ private:
   bool initialized;
   cMutex mutex;
   
-  static gboolean BusCallback(GstBus *bus, GstMessage *msg, gpointer data);
   
 protected:
   virtual void Action(void);
@@ -45,6 +44,9 @@ public:
   
   // Flush buffers
   void Clear(void);
+  
+  static gboolean BusCallback(GstBus *bus, GstMessage *msg, gpointer data);
+
 };
 
 // --- cGstAudioOutput -------------------------------------------------------

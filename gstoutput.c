@@ -586,8 +586,10 @@ void cGstVideoOutput::NeedDataCallback(GstElement *source, guint size, gpointer 
   int available = self->buffer->Available();
   if (available > 0) {
     uchar *readData;
-    int count = self->buffer->Get(readData, available);
-    if (count > 0) {
+    //int count = self->buffer->Get(readData, available);
+  	int count = 0;
+	readData = self->buffer->Get(count);
+	if (count > 0) {
       GstBuffer *gstBuffer = gst_buffer_new_allocate(NULL, count, NULL);
       GstMapInfo map;
       gst_buffer_map(gstBuffer, &map, GST_MAP_WRITE);

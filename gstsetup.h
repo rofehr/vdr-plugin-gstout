@@ -7,9 +7,17 @@
 
 #include <vdr/menuitems.h>
 
+// Forward declaration to avoid circular dependency
+class cGstoutConfig;
+
 class cGstoutSetupPage : public cMenuSetupPage {
 private:
-  cGstoutConfig data;
+  int audioSinkIndex;
+  int videoSinkIndex;
+  int useHardwareDecoding;
+  int deinterlace;
+  int audioBufferSize;
+  int videoBufferSize;
   
   const char *audioSinkNames[10];
   const char *videoSinkNames[10];

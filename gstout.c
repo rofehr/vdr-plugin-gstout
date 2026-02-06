@@ -24,6 +24,7 @@ cGstoutConfig::cGstoutConfig(void)
   videoBufferSize = 200;
   strcpy(audioSink, "autoaudiosink");
   strcpy(videoSink, "autovideosink");
+  osdBlending = true;
 }
 
 // --- cPluginGstout ---------------------------------------------------------
@@ -32,12 +33,14 @@ cPluginGstout::cPluginGstout(void)
 {
   // Initialize any member variables here.
   output = NULL;
+  osdProvider = NULL;
 }
 
 cPluginGstout::~cPluginGstout()
 {
   // Clean up after yourself!
   delete output;
+  delete osdProvider;
 }
 
 const char *cPluginGstout::CommandLineHelp(void)
@@ -93,6 +96,15 @@ bool cPluginGstout::Initialize(void)
     output = NULL;
     return false;
   }
+  
+  // Create and register OSD provider
+  osdProvider = new cGstOsdProvider();
+  cOsdProvider::SetOsdProvider(osdProvider);
+  isyslog("gstout: OSD provider registered");
+  
+  // Link OSD provider to video output
+  if (output)
+    output->SetOsdProvider(osdProvider);
   
   return true;
 }
@@ -160,6 +172,7 @@ bool cPluginGstout::SetupParse(const char *Name, const char *Value)
   else if (!strcasecmp(Name, "VideoBufferSize"))    GstoutConfig.videoBufferSize = atoi(Value);
   else if (!strcasecmp(Name, "AudioSink"))          strn0cpy(GstoutConfig.audioSink, Value, sizeof(GstoutConfig.audioSink));
   else if (!strcasecmp(Name, "VideoSink"))          strn0cpy(GstoutConfig.videoSink, Value, sizeof(GstoutConfig.videoSink));
+  else if (!strcasecmp(Name, "OsdBlending"))        GstoutConfig.osdBlending = atoi(Value);
   else
     return false;
   

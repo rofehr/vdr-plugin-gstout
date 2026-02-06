@@ -8,20 +8,22 @@
 #include <vdr/thread.h>
 #include <vdr/ringbuffer.h>
 #include <gst/gst.h>
-#include <gst/app/gstappsrc.h>
 
 // Forward declarations
 class cGstAudioOutput;
 class cGstVideoOutput;
+class cGstOsdProvider;
 
 // Main GStreamer output class
 class cGstOutput : public cThread {
 private:
   cGstAudioOutput *audioOutput;
   cGstVideoOutput *videoOutput;
+  cGstOsdProvider *osdProvider;
   bool initialized;
   cMutex mutex;
   
+  static gboolean BusCallback(GstBus *bus, GstMessage *msg, gpointer data);
   
 protected:
   virtual void Action(void);
@@ -45,8 +47,8 @@ public:
   // Flush buffers
   void Clear(void);
   
-  static gboolean BusCallback(GstBus *bus, GstMessage *msg, gpointer data);
-
+  // OSD provider link
+  void SetOsdProvider(cGstOsdProvider *provider) { osdProvider = provider; }
 };
 
 // --- cGstAudioOutput -------------------------------------------------------

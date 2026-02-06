@@ -59,7 +59,7 @@ LIBS += $(GSTLIBS)
 
 ### The object files:
 
-OBJS = $(PLUGIN).o gstoutput.o gstsetup.o
+OBJS = $(PLUGIN).o gstoutput.o gstsetup.o gstosd.o
 
 ### The main target:
 
@@ -118,7 +118,7 @@ $(SOFILE): $(OBJS)
 
 install-lib: $(SOFILE)
 	@echo IN $(DESTDIR)$(LIBDIR)/$<
-	install -D $^ $(DESTDIR)$(LIBDIR)/$^.$(APIVERSION)
+	install -D $^ $(DESTDIR)$(LIBDIR)/$^.$(APIVERSION) 
 
 install: install-lib install-i18n
 

@@ -13,9 +13,10 @@
 #include <vdr/player.h>
 #include <vdr/thread.h>
 #include "gstoutput.h"
+#include "gstosd.h"
 
-static const char *VERSION        = "0.1.0";
-static const char *DESCRIPTION    = "GStreamer-based Audio/Video Output";
+static const char *VERSION        = "0.2.0";
+static const char *DESCRIPTION    = "GStreamer-based Audio/Video Output with OSD";
 
 // Plugin configuration
 class cGstoutConfig {
@@ -28,6 +29,7 @@ public:
   int videoBufferSize;
   char audioSink[256];
   char videoSink[256];
+  bool osdBlending;
   
   cGstoutConfig(void);
 };
@@ -37,6 +39,7 @@ extern cGstoutConfig GstoutConfig;
 class cPluginGstout : public cPlugin {
 private:
   cGstOutput *output;
+  cGstOsdProvider *osdProvider;
   
 public:
   cPluginGstout(void);

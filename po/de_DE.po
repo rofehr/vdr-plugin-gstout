@@ -34,3 +34,6 @@ msgstr "Audio-Puffer (KB)"
 
 msgid "Video Buffer (KB)"
 msgstr "Video-Puffer (KB)"
+
+msgid "OSD Blending"
+msgstr "OSD-Einblendung"

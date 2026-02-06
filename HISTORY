@@ -1,6 +1,19 @@
 VDR Plugin 'gstout' Revision History
 ------------------------------------
 
+2026-02-05: Version 0.2.0
+
+- Added OSD support:
+  * cGstOsdProvider - OSD provider implementation
+  * cGstOsd - True-color (32-bit ARGB) OSD rendering
+  * Alpha-blended overlays over video
+  * All VDR drawing operations supported
+  * Thread-safe OSD buffer management
+  * Configurable enable/disable via setup menu
+- Updated setup menu with OSD blending option
+- Added comprehensive OSD documentation (OSD.md)
+- German translation updated
+
 2026-02-04: Version 0.1.0
 
 - Initial release

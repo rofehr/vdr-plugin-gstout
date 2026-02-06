@@ -2,12 +2,17 @@
 
 ## Description
 
-This plugin provides GStreamer-based audio and video output for VDR 2.7.8. It leverages the powerful GStreamer multimedia framework to offer flexible playback options with support for hardware acceleration, various output sinks, and advanced features like deinterlacing.
+This plugin provides GStreamer-based audio and video output for VDR 2.7.8 with **integrated OSD support**. It leverages the powerful GStreamer multimedia framework to offer flexible playback options with support for hardware acceleration, various output sinks, and advanced features like deinterlacing. The built-in OSD provider renders VDR menus, EPG, and subtitles directly over the video output.
 
 ## Features
 
 - **GStreamer Integration**: Uses GStreamer 1.0 multimedia framework
 - **Hardware Acceleration**: Optional VAAPI hardware decoding support
+- **OSD Support**: Built-in OSD provider for menus, EPG, subtitles
+  - Alpha-blended overlays
+  - True-color (32-bit ARGB) rendering
+  - Hardware-accelerated blending
+  - Configurable enable/disable
 - **Flexible Output Sinks**: 
   - Audio: ALSA, PulseAudio, OSS, JACK, or auto-detection
   - Video: X11, VAAPI, OpenGL, Framebuffer, or auto-detection
@@ -106,6 +111,7 @@ The plugin provides a setup menu accessible via VDR's Setup → Plugins → gsto
 - **Video Sink**: Select video output method
 - **Hardware Decoding**: Enable/disable VAAPI hardware acceleration
 - **Deinterlace**: Enable/disable deinterlacing
+- **OSD Blending**: Enable/disable OSD overlay rendering
 - **Audio Buffer**: Buffer size in KB (50-1000)
 - **Video Buffer**: Buffer size in KB (100-2000)
 
@@ -134,19 +140,21 @@ GStreamer pipeline reset
 ┌─────────────────────────────────────────┐
 │         cPluginGstout                   │
 │  (Main plugin, VDR interface)           │
-└─────────────┬───────────────────────────┘
-              │
-              ▼
-┌─────────────────────────────────────────┐
-│          cGstOutput                      │
-│  (Output coordinator, thread manager)   │
-└─────┬──────────────────────┬────────────┘
-      │                      │
-      ▼                      ▼
-┌─────────────────┐   ┌─────────────────┐
-│ cGstAudioOutput │   │ cGstVideoOutput │
-│ (Audio pipeline)│   │ (Video pipeline)│
-└─────────────────┘   └─────────────────┘
+└─────────────┬───────────┬───────────────┘
+              │           │
+              │           └──────────────┐
+              ▼                          ▼
+┌─────────────────────────────┐   ┌──────────────────┐
+│       cGstOutput            │   │ cGstOsdProvider  │
+│  (Output coordinator)       │   │  (OSD rendering) │
+└─────┬──────────────┬────────┘   └──────────────────┘
+      │              │
+      ▼              ▼
+┌───────────────┐  ┌───────────────┐
+│cGstAudioOutput│  │cGstVideoOutput│
+│(Audio pipeline)│  │(Video pipeline│
+│               │  │  + OSD blend) │
+└───────────────┘  └───────────────┘
 ```
 
 ### Audio Pipeline

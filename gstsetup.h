@@ -21,6 +21,9 @@ private:
   
   const char *audioSinkNames[10];
   const char *videoSinkNames[10];
+  int audioSinkIndex;
+  int videoSinkIndex;
+  int osdBlending;
   
   void Setup(void);
   

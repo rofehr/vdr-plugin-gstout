@@ -14,6 +14,7 @@ cGstoutSetupPage::cGstoutSetupPage(void)
   deinterlace = GstoutConfig.deinterlace;
   audioBufferSize = GstoutConfig.audioBufferSize;
   videoBufferSize = GstoutConfig.videoBufferSize;
+  osdBlending = GstoutConfig.osdBlending;
   
   // Audio sink options
   audioSinkNames[0] = "autoaudiosink";
@@ -61,6 +62,7 @@ void cGstoutSetupPage::Setup(void)
   Add(new cMenuEditStraItem(tr("Video Sink"), &videoSinkIndex, 6, videoSinkNames));
   Add(new cMenuEditBoolItem(tr("Hardware Decoding"), &useHardwareDecoding));
   Add(new cMenuEditBoolItem(tr("Deinterlace"), &deinterlace));
+  Add(new cMenuEditBoolItem(tr("OSD Blending"), &osdBlending));
   Add(new cMenuEditIntItem(tr("Audio Buffer (KB)"), &audioBufferSize, 50, 1000));
   Add(new cMenuEditIntItem(tr("Video Buffer (KB)"), &videoBufferSize, 100, 2000));
   
@@ -81,6 +83,7 @@ void cGstoutSetupPage::Store(void)
   GstoutConfig.deinterlace = deinterlace;
   GstoutConfig.audioBufferSize = audioBufferSize;
   GstoutConfig.videoBufferSize = videoBufferSize;
+  GstoutConfig.osdBlending = osdBlending;
   
   SetupStore("UseHardwareDecoding", GstoutConfig.useHardwareDecoding);
   SetupStore("Deinterlace", GstoutConfig.deinterlace);
@@ -88,4 +91,5 @@ void cGstoutSetupPage::Store(void)
   SetupStore("VideoBufferSize", GstoutConfig.videoBufferSize);
   SetupStore("AudioSink", GstoutConfig.audioSink);
   SetupStore("VideoSink", GstoutConfig.videoSink);
+  SetupStore("OsdBlending", GstoutConfig.osdBlending);
 }

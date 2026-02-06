@@ -85,7 +85,7 @@ void cGstOsd::DrawPixel(int x, int y, tColor Color)
   cMutexLock lock(&mutex);
   
   if (bitmap) {
-    bitmap->DrawPixel(cPoint(x, y), Color);
+    bitmap->DrawPixel(x, y, Color);
     dirty = true;
   }
 }

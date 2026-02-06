@@ -5,19 +5,10 @@
 #ifndef __GSTOSD_H
 #define __GSTOSD_H
 
-#include <vdr/channels.h>
 #include <vdr/osd.h>
 #include <vdr/thread.h>
 #include <gst/gst.h>
 #include <gst/video/video.h>
-
-#include <gst/gst.h>
-#include <gio/gio.h>
-#include <gst/app/gstappsrc.h>
-#include <gst/video/video.h>
-#include <gst/video/videooverlay.h>
-#include <gst/video/video-overlay-composition.h>
-
 
 // Forward declaration
 class cGstOsdProvider;

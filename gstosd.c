@@ -85,7 +85,7 @@ void cGstOsd::DrawPixel(int x, int y, tColor Color)
   cMutexLock lock(&mutex);
   
   if (bitmap) {
-    bitmap->DrawPixel(cPoint(x, y), Color);
+    bitmap->SetPixel(cPoint(x, y), Color);
     dirty = true;
   }
 }
@@ -166,24 +166,15 @@ void cGstOsd::RenderBitmap(void)
     return;
   }
   
-  // Convert bitmap to ARGB
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      tColor color = bitmap->GetColor(x, y);
-      int offset = (y * stride) + (x * 4);
-      
-      // Extract ARGB components
-      uint8_t a = (color >> 24) & 0xFF;
-      uint8_t r = (color >> 16) & 0xFF;
-      uint8_t g = (color >> 8) & 0xFF;
-      uint8_t b = color & 0xFF;
-      
-      // Store in buffer (ARGB format)
-      data[offset + 0] = a;
-      data[offset + 1] = r;
-      data[offset + 2] = g;
-      data[offset + 3] = b;
-    }
+  // Get direct access to bitmap data
+  const uint8_t *bitmapData = bitmap->Data(0, 0);
+  if (!bitmapData) {
+    // Fallback: clear to transparent
+    memset(data, 0, stride * height);
+  } else {
+    // Copy bitmap data to ARGB buffer
+    // Note: VDR bitmap is already in ARGB format
+    memcpy(data, bitmapData, stride * height);
   }
   
   // Send to provider
@@ -203,21 +194,18 @@ bool cGstOsd::GetOsdData(uint8_t **data, int *width, int *height, int *stride)
   *height = bitmap->Height();
   *stride = (*width) * 4;
   
-  // Allocate and fill buffer (same as RenderBitmap)
+  // Allocate buffer
   *data = (uint8_t *)malloc((*stride) * (*height));
   if (!*data)
     return false;
   
-  for (int y = 0; y < *height; y++) {
-    for (int x = 0; x < *width; x++) {
-      tColor color = bitmap->GetColor(x, y);
-      int offset = (y * (*stride)) + (x * 4);
-      
-      (*data)[offset + 0] = (color >> 24) & 0xFF; // A
-      (*data)[offset + 1] = (color >> 16) & 0xFF; // R
-      (*data)[offset + 2] = (color >> 8) & 0xFF;  // G
-      (*data)[offset + 3] = color & 0xFF;         // B
-    }
+  // Get direct access to bitmap data
+  const uint8_t *bitmapData = bitmap->Data(0, 0);
+  if (bitmapData) {
+    memcpy(*data, bitmapData, (*stride) * (*height));
+  } else {
+    // Clear to transparent if data unavailable
+    memset(*data, 0, (*stride) * (*height));
   }
   
   return true;
@@ -312,49 +300,31 @@ void cGstOsdProvider::ApplyOsdOverlay(GstBuffer *buffer)
     return;
   }
   
-  // Get video info from caps
-  GstCaps *caps = gst_buffer_get_caps(buffer);
-  if (!caps) {
-    gst_buffer_unmap(buffer, &map);
-    return;
-  }
+  // For simplicity, assume video dimensions match OSD dimensions
+  // A proper implementation would get video info from caps on the pad
+  // and scale OSD accordingly
   
-  GstStructure *structure = gst_caps_get_structure(caps, 0);
-  int videoWidth, videoHeight;
-  gst_structure_get_int(structure, "width", &videoWidth);
-  gst_structure_get_int(structure, "height", &videoHeight);
-  gst_caps_unref(caps);
+  int minSize = (map.size < (size_t)(osdStride * osdHeight)) ? map.size : (osdStride * osdHeight);
   
   // Simple alpha blending (assumes ARGB format for both)
-  // This is a simplified version - proper implementation would handle
-  // different video formats and scaling
-  
-  int minWidth = (osdWidth < videoWidth) ? osdWidth : videoWidth;
-  int minHeight = (osdHeight < videoHeight) ? osdHeight : videoHeight;
-  
-  for (int y = 0; y < minHeight; y++) {
-    for (int x = 0; x < minWidth; x++) {
-      int osdOffset = (y * osdStride) + (x * 4);
-      int videoOffset = (y * videoWidth * 4) + (x * 4);
+  for (size_t i = 0; i < minSize; i += 4) {
+    uint8_t osdA = osdBuffer[i + 0];
+    
+    if (osdA > 0) {
+      // Simple alpha blending
+      uint8_t osdR = osdBuffer[i + 1];
+      uint8_t osdG = osdBuffer[i + 2];
+      uint8_t osdB = osdBuffer[i + 3];
       
-      uint8_t osdA = osdBuffer[osdOffset + 0];
+      uint8_t videoR = map.data[i + 1];
+      uint8_t videoG = map.data[i + 2];
+      uint8_t videoB = map.data[i + 3];
       
-      if (osdA > 0) {
-        // Simple alpha blending
-        uint8_t osdR = osdBuffer[osdOffset + 1];
-        uint8_t osdG = osdBuffer[osdOffset + 2];
-        uint8_t osdB = osdBuffer[osdOffset + 3];
-        
-        uint8_t videoR = map.data[videoOffset + 1];
-        uint8_t videoG = map.data[videoOffset + 2];
-        uint8_t videoB = map.data[videoOffset + 3];
-        
-        float alpha = osdA / 255.0f;
-        
-        map.data[videoOffset + 1] = (uint8_t)(osdR * alpha + videoR * (1.0f - alpha));
-        map.data[videoOffset + 2] = (uint8_t)(osdG * alpha + videoG * (1.0f - alpha));
-        map.data[videoOffset + 3] = (uint8_t)(osdB * alpha + videoB * (1.0f - alpha));
-      }
+      float alpha = osdA / 255.0f;
+      
+      map.data[i + 1] = (uint8_t)(osdR * alpha + videoR * (1.0f - alpha));
+      map.data[i + 2] = (uint8_t)(osdG * alpha + videoG * (1.0f - alpha));
+      map.data[i + 3] = (uint8_t)(osdB * alpha + videoB * (1.0f - alpha));
     }
   }
   

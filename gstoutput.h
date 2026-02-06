@@ -24,6 +24,8 @@ private:
   bool initialized;
   cMutex mutex;
   
+  static gboolean BusCallback(GstBus *bus, GstMessage *msg, gpointer data);
+  
 protected:
   virtual void Action(void);
   
@@ -48,9 +50,6 @@ public:
   
   // OSD provider link
   void SetOsdProvider(cGstOsdProvider *provider) { osdProvider = provider; }
-  
-  static gboolean BusCallback(GstBus *bus, GstMessage *msg, gpointer data);
-
 };
 
 // --- cGstAudioOutput -------------------------------------------------------

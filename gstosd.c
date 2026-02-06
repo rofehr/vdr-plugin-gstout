@@ -95,7 +95,7 @@ void cGstOsd::DrawBitmap(int x, int y, const cBitmap &Bitmap, tColor ColorFg, tC
   cMutexLock lock(&mutex);
   
   if (bitmap) {
-    bitmap->DrawBitmap(cPoint(x, y), Bitmap, ColorFg, ColorBg, ReplacePalette, Overlay);
+    bitmap->DrawBitmap(x, y, Bitmap, ColorFg, ColorBg, ReplacePalette, Overlay);
     dirty = true;
   }
 }

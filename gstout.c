@@ -99,7 +99,7 @@ bool cPluginGstout::Initialize(void)
   
   // Create and register OSD provider
   osdProvider = new cGstOsdProvider();
-  cOsdProvider::SetOsdProvider(osdProvider);
+  //cOsdProvider::SetOsdProvider(osdProvider);
   isyslog("gstout: OSD provider registered");
   
   // Link OSD provider to video output

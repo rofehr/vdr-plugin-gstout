@@ -105,7 +105,7 @@ void cGstOsd::DrawText(int x, int y, const char *s, tColor ColorFg, tColor Color
   cMutexLock lock(&mutex);
   
   if (bitmap && s && Font) {
-    bitmap->DrawText(cPoint(x, y), s, ColorFg, ColorBg, Font, Width, Height, Alignment);
+    bitmap->DrawText(x, y, s, ColorFg, ColorBg, Font, Width, Height, Alignment);
     dirty = true;
   }
 }

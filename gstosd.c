@@ -125,7 +125,7 @@ void cGstOsd::DrawEllipse(int x1, int y1, int x2, int y2, tColor Color, int Quad
   cMutexLock lock(&mutex);
   
   if (bitmap) {
-    bitmap->DrawEllipse(cRect(x1, y1, x2 - x1 + 1, y2 - y1 + 1), Color, Quadrants);
+    bitmap->DrawEllipse(x1, y1, x2 - x1 + 1, y2 - y1 + 1, Color, Quadrants);
     dirty = true;
   }
 }
@@ -135,7 +135,7 @@ void cGstOsd::DrawSlope(int x1, int y1, int x2, int y2, tColor Color, int Type)
   cMutexLock lock(&mutex);
   
   if (bitmap) {
-    bitmap->DrawSlope(cRect(x1, y1, x2 - x1 + 1, y2 - y1 + 1), Color, Type);
+    bitmap->DrawSlope(x1, y1, x2 - x1 + 1, y2 - y1 + 1, Color, Type);
     dirty = true;
   }
 }

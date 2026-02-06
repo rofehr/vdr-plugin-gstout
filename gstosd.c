@@ -115,7 +115,7 @@ void cGstOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor Color)
   cMutexLock lock(&mutex);
   
   if (bitmap) {
-    bitmap->DrawRectangle(cRect(x1, y1, x2 - x1 + 1, y2 - y1 + 1), Color);
+    bitmap->DrawRectangle(x1, y1, x2 - x1 + 1, y2 - y1 + 1, Color);
     dirty = true;
   }
 }

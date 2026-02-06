@@ -122,7 +122,7 @@ bool cGstOutput::PlayVideo(const uchar *Data, int Length)
 }
 
 
-int cGstOutput::PlayVideo(const uchar *Data, int Length)
+int cGstOutput::PlayTs(const uchar *Data, int Length)
 {
   if (videoOutput)
     return videoOutput->Play(Data, Length);

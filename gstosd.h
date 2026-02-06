@@ -11,6 +11,14 @@
 #include <gst/gst.h>
 #include <gst/video/video.h>
 
+#include <gst/gst.h>
+#include <gio/gio.h>
+#include <gst/app/gstappsrc.h>
+#include <gst/video/video.h>
+#include <gst/video/videooverlay.h>
+#include <gst/video/video-overlay-composition.h>
+
+
 // Forward declaration
 class cGstOsdProvider;
 

@@ -8,6 +8,7 @@
 #include <vdr/thread.h>
 #include <vdr/ringbuffer.h>
 #include <gst/gst.h>
+#include <gst/app/gstappsrc.h>
 
 // Forward declarations
 class cGstAudioOutput;

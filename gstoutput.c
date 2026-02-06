@@ -121,6 +121,15 @@ bool cGstOutput::PlayVideo(const uchar *Data, int Length)
   return false;
 }
 
+
+int cGstOutput::PlayVideo(const uchar *Data, int Length)
+{
+  if (videoOutput)
+    return videoOutput->Play(Data, Length);
+  return false;
+}
+
+
 void cGstOutput::Clear(void)
 {
   if (audioOutput)

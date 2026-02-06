@@ -43,6 +43,8 @@ public:
   // Audio/Video data input
   bool PlayAudio(const uchar *Data, int Length);
   bool PlayVideo(const uchar *Data, int Length);
+  int PlayTs(const uchar *Data, int Length, bool VideoOnly = false);
+
   
   // Flush buffers
   void Clear(void);

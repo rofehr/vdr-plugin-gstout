@@ -5,6 +5,7 @@
 #ifndef __GSTOSD_H
 #define __GSTOSD_H
 
+#include <vdr/channles.h>
 #include <vdr/osd.h>
 #include <vdr/thread.h>
 #include <gst/gst.h>
